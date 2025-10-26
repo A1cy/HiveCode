@@ -101,18 +101,46 @@ HiveCode combines:
 
 **Single Objective**: User can install HiveCode and successfully complete one multi-agent development task.
 
+**Foundation**: OpenCode.ai v0.15.18 (29K stars, 200K users, production-ready)
+
 ### MVP Features
 
-#### 1. **Single Model Provider: Groq (Free Tier)**
-- **Why Groq?**
-  - ✅ Free tier: 14,400 requests/day (plenty for MVP)
-  - ✅ Fast: 840 TPS (faster than local)
-  - ✅ No installation: Just API key
-  - ✅ Good models: Llama 3.3 70B, Qwen 32B
+#### 1. **CLI Foundation: OpenCode.ai** ✅
+- **Why OpenCode?**
+  - ✅ **MCP Native**: Built-in Model Context Protocol support for 6 existing MCP servers
+  - ✅ **Plugin System**: `@opencode-ai/plugin` for extensibility (agent coordination, TTS, memory)
+  - ✅ **Agent Management**: Built-in multi-agent support and orchestration
+  - ✅ **Production Ready**: 29K GitHub stars, 200K active users
+  - ✅ **AWS Bedrock Integrated**: Already works with Anthropic Sonnet 4.5
+  - ✅ **CLI Mode**: `opencode run` for headless operation
 
-- **Configuration**: Simple API key in `~/.hivecode/config.yaml`
+- **Installation**: One command: `curl -fsSL https://opencode.ai/install | bash`
+- **Verified**: OpenCode v0.15.18 installed and tested successfully
 
-#### 2. **Five Core Agents**
+#### 2. **Primary Model: AWS Bedrock (Anthropic Sonnet 4.5)** ✅
+- **Why AWS Bedrock?**
+  - ✅ **Already Configured**: Uses existing A1xAI AWS credentials
+  - ✅ **Claude Sonnet 4.5**: Best-in-class reasoning (same as Claude Code)
+  - ✅ **Free Tier**: 2 months free trial (10K input/output tokens per month)
+  - ✅ **Verified Working**: Tested with OpenCode successfully
+  - ✅ **30+ Models**: Fallback options (Llama 3.3, DeepSeek R1, etc.)
+
+- **Cost After Free Tier**: ~$12-15/month (with Ollama optimization in Phase 2)
+- **Configuration**: Env vars already set in `~/.claude/settings.json`
+
+#### 3. **MCP Integration** (Critical Feature) ✅
+- **6 Existing MCP Servers** ready to connect:
+  - `memory` - Cross-session memory management
+  - `shadcn-ui` - UI component generation
+  - `blender` - 3D modeling integration
+  - `n8n-mcp` - Workflow automation
+  - `playwright` - Browser automation and testing
+  - `clickup` - Project management and agent coordination
+
+- **OpenCode MCP Support**: Native `/mcp` endpoint in SDK (verified)
+- **Next Step**: Configure OpenCode to connect all 6 servers
+
+#### 4. **Five Core Agents**
 
 | Agent | Purpose | Responsibility |
 |-------|---------|----------------|
@@ -122,76 +150,105 @@ HiveCode combines:
 | **tester** | Quality assurance | Unit tests, integration tests, test coverage |
 | **refactor** | Code improvement | Clean code, patterns, performance optimization |
 
-#### 3. **Three Essential Commands**
+#### 5. **Three Essential Commands** (HiveCode Wrapper)
 
 ```bash
 # 1. Load project context (like Claude Code's /prime)
 hivecode prime
+# → Calls OpenCode with context-loading prompt + MCP memory
 
 # 2. Execute multi-agent SPARC workflow
 hivecode sparc "build user authentication with tests"
+# → Orchestrates multiple OpenCode agents in parallel
 
 # 3. Ask simple questions
 hivecode ask "how does the auth system work?"
+# → Single OpenCode agent query with project context
 ```
 
-#### 4. **Basic Memory System**
-- Simple JSON file: `~/.hivecode/memory.json`
-- Store: Last 10 conversations, project context, agent outputs
-- No database, no complexity
+**Implementation**: Python wrapper that:
+- Parses `hivecode` commands
+- Calls `opencode run` or `opencode serve` with appropriate prompts
+- Coordinates multi-agent workflows
+- Manages session state via OpenCode export/import
 
-#### 5. **Parallel Execution**
-- Run 2 agents simultaneously (max)
-- Simple Python `concurrent.futures` ThreadPoolExecutor
-- Sequential fallback if parallel fails
+#### 6. **Basic Memory System**
+- **OpenCode Sessions**: Built-in session management + export
+- **MCP Memory Server**: Cross-session persistence via existing MCP server
+- **HiveCode Layer**: Orchestration metadata (JSON)
+- **No Database**: Keep it simple with file-based storage
 
-#### 6. **Minimal Installation**
+#### 7. **Agent Coordination**
+- **OpenCode Native**: Multiple agents via session management
+- **Parallel Execution**: 2-3 agents simultaneously via `opencode serve`
+- **HiveCode Orchestrator**: Python script coordinates agent spawning and result synthesis
+
+#### 8. **Installation**
 
 ```bash
 # One command install
-curl -fsSL https://raw.githubusercontent.com/[user]/hivecode/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/A1cy/HiveCode/main/install.sh | bash
 
 # What it does:
 # 1. Check Python 3.11+ installed
-# 2. Install dependencies (pip install groq pyyaml)
-# 3. Create ~/.hivecode/ directory
-# 4. Copy files to ~/.hivecode/
-# 5. Add `hivecode` command to PATH
-# 6. Prompt for Groq API key
-# 7. Run verification test
+# 2. Install OpenCode.ai (curl -fsSL https://opencode.ai/install | bash)
+# 3. Verify AWS Bedrock credentials (from existing ~/.claude/settings.json)
+# 4. Create ~/.hivecode/ directory
+# 5. Copy HiveCode orchestrator and agent files
+# 6. Add `hivecode` command to PATH
+# 7. Test OpenCode + MCP integration
+# 8. Run verification test with AWS Bedrock Sonnet 4.5
 ```
+
+**Total Install Time**: < 3 minutes (OpenCode ~2 min + HiveCode wrapper ~1 min)
 
 ### MVP Constraints (What We DON'T Build Yet)
 
-❌ Multiple model providers (just Groq)
-❌ Local LLM support (no Ollama yet)
-❌ All 56 agents (just 5)
-❌ Complete command suite (just 3)
-❌ Advanced memory system (just JSON)
-❌ TTS/voice feedback
-❌ Git integration for checkpoints
-❌ Web UI
-❌ Windows native support (WSL only)
+❌ Ollama local LLM integration (Phase 2 - requires custom OpenCode plugin)
+❌ Multiple cloud providers (just AWS Bedrock for MVP)
+❌ All 56 agents (just 5 core agents)
+❌ Complete command suite (just 3: prime, sparc, ask)
+❌ Advanced memory beyond MCP server (just JSON metadata)
+❌ TTS/voice feedback integration
+❌ Checkpoint/rewind system (OpenCode doesn't have native checkpoints)
+❌ Web UI (CLI-first approach)
+❌ Windows native support (WSL2 only)
 
 ### MVP Success Criteria
 
-✅ Install completes in < 2 minutes
-✅ User can run `hivecode sparc "build a REST API"`
-✅ 2 agents execute in parallel successfully
-✅ Results are coherent and useful
-✅ Memory persists across sessions
+✅ Install completes in < 3 minutes (OpenCode + HiveCode wrapper)
+✅ OpenCode connects to AWS Bedrock Sonnet 4.5
+✅ 6 MCP servers connected and functional
+✅ User can run `hivecode prime` (context loading)
+✅ User can run `hivecode sparc "build a REST API"` (multi-agent workflow)
+✅ 2-3 agents execute in parallel via OpenCode
+✅ Results are coherent and match Claude Code quality
+✅ Memory persists via MCP memory server
 ✅ Works on Ubuntu 22.04 / Debian 12 / WSL2
+✅ Total cost: ~$0-5/month with AWS free tier
 
 ---
 
 ## 🗺️ Future Phases (Roadmap)
 
-### Phase 2: Enhanced MVP (Week 3-4)
+### Phase 2: Ollama Integration & Cost Optimization (Week 3-4)
 
-**Goal**: Production-ready for early adopters
+**Goal**: 100% free operation with local models
 
-- ✅ Add Ollama local LLM support
-- ✅ Implement LiteLLM router (Groq → Ollama fallback)
+**Priority 1: Ollama Provider Plugin** 🎯
+- ✅ Create `@hivecode/ollama-provider` OpenCode plugin
+- ✅ Dynamic model discovery from Ollama API
+- ✅ Register qwen2.5-coder, llama3.3, and other models
+- ✅ Test parallel agent execution with Ollama
+
+**Priority 2: Intelligent Model Router**
+- ✅ LiteLLM-style routing: AWS Bedrock (fast) ⇄ Ollama (free)
+- ✅ Auto-switch based on task complexity:
+  - Simple queries → Ollama (qwen2.5-coder, 4.7GB)
+  - Complex architecture → AWS Bedrock (Sonnet 4.5)
+- ✅ Target: 80% Ollama + 20% Bedrock = ~$3-5/month
+
+**Priority 3: Agent Expansion**
 - ✅ Add 5 more agents (10 total):
   - security-specialist
   - performance-optimizer
